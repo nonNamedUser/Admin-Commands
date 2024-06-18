@@ -6,6 +6,8 @@ return function (Settings,Plugins)
 	local commands = pluginManager:GetCommands()
 
 	local runOnCommand=pluginManager:GetOnCommands()
+	
+	local onStart=pluginManager:GetOnStart()
 
 	local prefix=settings.Prefix
 
@@ -23,15 +25,15 @@ return function (Settings,Plugins)
 
 	function chatted(plr:Player)
 		plr.Chatted:Connect(function(msg)
-			msg=string.lower(msg)
+			local arg=string.lower(msg)
 
-			msg=string.split(msg, ' ')
+			arg=string.split(msg, ' ')
 
 			for _, command in ipairs(commands) do
-				if msg[1]==prefix..string.lower(command.Name) then
-					command.Function(plr,msg)
+				if arg[1]==prefix..string.lower(command.Name) then
+					command.Function(plr,arg)
 					for _, module in ipairs(runOnCommand) do
-						module.Function(plr,command.Name)
+						module.Function(plr,command.Name, msg)
 					end
 				end
 			end
@@ -47,11 +49,15 @@ return function (Settings,Plugins)
 		local loaded=Instance.new('BoolValue', plr) loaded.Name="Loaded" loaded.Value=true
 
 		if settings.whitelistEnabled == true then
-			local s=task.spawn(checkwhitelist,plr)
+			local s=checkwhitelist(plr)
 			if s then
+				local admin=Instance.new('BoolValue',plr) admin.Name='Admin'
+				admin.Value=true
 				task.spawn(chatted, plr)
 			end
 		elseif settings.whitelistEnabled == false then
+			local admin=Instance.new('BoolValue',plr) admin.Name='Admin'
+			admin.Value=true
 			task.spawn(chatted, plr)
 		end
 	end
@@ -67,12 +73,20 @@ return function (Settings,Plugins)
 		local loaded=Instance.new('BoolValue', plr) loaded.Name="Loaded" loaded.Value=true
 
 		if settings.whitelistEnabled == true then
-			local s=task.spawn(checkwhitelist,plr)
+			local s=checkwhitelist(plr)
 			if s then
+				local admin=Instance.new('BoolValue',plr) admin.Name='Admin'
+				admin.Value=true
 				task.spawn(chatted, plr)
 			end
 		elseif settings.whitelistEnabled == false then
+			local admin=Instance.new('BoolValue',plr) admin.Name='Admin'
+			admin.Value=true
 			task.spawn(chatted, plr)
 		end
 	end)
+	
+	for _,index in ipairs(onStart) do
+		index.Function()
+	end
 end
