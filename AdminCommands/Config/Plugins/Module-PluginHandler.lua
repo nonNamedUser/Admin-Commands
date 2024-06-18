@@ -1,3 +1,4 @@
+local onstart=script.Parent.OnStart
 local oncommand=script.Parent.OnCommand
 local commands=script.Parent.Commands
 
@@ -19,6 +20,18 @@ function module:GetOnCommands()
 	local functions={}
 	
 	for _, osModule in oncommand:GetChildren() do
+		if not osModule:IsA('ModuleScript') then return end
+		local module=require(osModule)
+		table.insert(functions, {['Function']=module.Function})
+	end
+	task.wait()
+	return functions
+end
+
+function module:GetOnStart()
+	local functions={}
+
+	for _, osModule in onstart:GetChildren() do
 		if not osModule:IsA('ModuleScript') then return end
 		local module=require(osModule)
 		table.insert(functions, {['Function']=module.Function})
